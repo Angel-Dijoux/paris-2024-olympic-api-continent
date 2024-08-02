@@ -16,6 +16,7 @@ USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 
 def get_olympic_medal_tally(
     ioc_noc_code: str = None,
+    continent: bool = None,
 ) -> dict[str, any]:
     try:
         last_updated, results, source = _get_olympic_data_results()
@@ -36,12 +37,34 @@ def get_olympic_medal_tally(
     if results:
         results = inject_iso_codes(results)
 
+    if continent:
+        results = _group_by_continent(results)
+
     return {
         "last_updated": last_updated,
         "source": source,
         "length": len(results),
         "results": results,
     }
+
+
+def _group_by_continent(
+    results: list[dict[str, any]],
+) -> dict[str, list[dict[str, any]]]:
+    continent_groups = {}
+
+    for result in results:
+        country = result.get("country", {})
+        continent = country.get(
+            "continent", "Unknown"
+        )  # Default to "Unknown" if continent is not provided
+
+        if continent not in continent_groups:
+            continent_groups[continent] = []
+
+        continent_groups[continent].append(result)
+
+    return continent_groups
 
 
 def _get_result_for_noc(

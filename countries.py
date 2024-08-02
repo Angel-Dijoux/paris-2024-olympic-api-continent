@@ -64,13 +64,13 @@ def get_country_codes() -> tuple[list[dict[str, str]], dict[str, dict[str, str]]
     return codes
 
 
-def load_country_codes():
+def load_countries():
     with open("countries.json") as f:
         return json.load(f)
 
 
 def inject_iso_codes(results: list[dict[str, any]]):
-    codes = load_country_codes()
+    codes = load_countries()
     noc_to_country = {code["ioc_noc_code"]: code for code in codes}
 
     for result in results:
@@ -78,7 +78,9 @@ def inject_iso_codes(results: list[dict[str, any]]):
         ioc_noc_code = country["code"]
 
         if ioc_noc_code in noc_to_country:
-            country["iso_alpha_3"] = noc_to_country[ioc_noc_code]["iso_alpha_3"]
-            country["iso_alpha_2"] = noc_to_country[ioc_noc_code]["iso_alpha_2"]
+            country_info = noc_to_country[ioc_noc_code]
+            country["iso_alpha_3"] = country_info.get("iso_alpha_3", "")
+            country["iso_alpha_2"] = country_info.get("iso_alpha_2", "")
+            country["continent"] = country_info.get("continent", "")
 
     return results

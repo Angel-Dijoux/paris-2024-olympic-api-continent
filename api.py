@@ -21,7 +21,11 @@ def home():
 @app.route("/medals", methods=["GET"])
 def get_medal_tally():
     ioc_noc_code = request.args.get("country")
-    results = get_olympic_medal_tally(ioc_noc_code=ioc_noc_code)
+    continent = request.args.get("continent")
+    if continent:
+        results = None
+    else:
+        results = get_olympic_medal_tally(ioc_noc_code=ioc_noc_code)
     response = make_response(jsonify(results))
     # https://vercel.com/docs/edge-network/caching
     response.headers["Cache-Control"] = "public, s-maxage=1800"
